@@ -1,0 +1,215 @@
+{% if product != blank and product.metafields.custom.sibling_products != blank %}
+  {% assign current_scent = product.metafields.custom.scent_name.value | default: product.title %}
+
+  <style>
+    .tm-scent-selector,
+    .tm-scent-selector *,
+    .tm-scent-selector *::before,
+    .tm-scent-selector *::after {
+      box-sizing: border-box;
+      font-family: inherit;
+    }
+
+    .tm-scent-selector {
+      position: relative;
+      width: 100%;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    .tm-scent-dropdown {
+      position: relative;
+      width: 100%;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    .tm-scent-dropdown > summary {
+      position: relative;
+      width: 100%;
+      min-height: 50px;
+      margin: 0 !important;
+      padding: 6px 42px 6px 16px !important;
+
+      border: 1px solid rgba(0, 0, 0, 0.14);
+      background: transparent;
+      list-style: none;
+      cursor: pointer;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .tm-scent-dropdown > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .tm-scent-dropdown > summary::marker {
+      display: none;
+      content: "";
+    }
+
+    .tm-scent-label {
+      font-size: 12px;
+      line-height: 1;
+      margin: 0 0 2px 0;
+    }
+
+    .tm-scent-current {
+      font-size: inherit;
+      line-height: 1.1;
+      margin: 0;
+    }
+
+    .tm-scent-arrow {
+      position: absolute;
+      right: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      transition: transform .2s ease;
+      pointer-events: none;
+    }
+
+    .tm-scent-dropdown[open] .tm-scent-arrow {
+      transform: translateY(-50%) rotate(180deg);
+    }
+
+    .tm-scent-options {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      z-index: 999;
+
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+
+      background: #fff;
+      border: 1px solid rgba(0,0,0,.14);
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .tm-scent-option {
+      margin: 0;
+      padding: 0;
+    }
+
+    .tm-scent-option-link,
+    .tm-scent-option-current {
+      display: flex;
+      align-items: center;
+
+      width: 100%;
+      min-height: 50px;
+
+      margin: 0;
+      padding: 6px 42px 6px 16px;
+
+      text-decoration: none;
+      color: inherit;
+      position: relative;
+    }
+
+    .tm-scent-option-link:hover {
+      background: rgba(0,0,0,.04);
+    }
+
+    .tm-scent-option:not(.is-current) {
+      opacity: .6;
+    }
+
+    .tm-scent-check {
+      position: absolute;
+      right: 18px;
+      top: 50%;
+      width: 12px;
+      height: 6px;
+      border-left: 1.5px solid currentColor;
+      border-bottom: 1.5px solid currentColor;
+      transform: translateY(-70%) rotate(-45deg);
+    }
+
+    /* สำคัญ: ลบช่องว่างระหว่าง Scent กับ Size */
+    .tm-scent-selector {
+      margin-bottom: 0 !important;
+    }
+
+    .tm-scent-selector + * {
+      margin-top: 0 !important;
+    }
+
+    .tm-scent-selector + .product-form__input,
+    .tm-scent-selector + fieldset,
+    .tm-scent-selector + .variant-picker {
+      margin-top: 0 !important;
+      padding-top: 0 !important;
+    }
+  </style>
+
+  <div class="tm-scent-selector">
+    <details class="tm-scent-dropdown">
+      <summary>
+        <span class="tm-scent-label">Scent</span>
+
+        <span class="tm-scent-current">
+          {{ current_scent }}
+        </span>
+
+        <span class="tm-scent-arrow">
+          <svg
+            width="7"
+            height="5"
+            viewBox="0 0 7 5"
+            fill="none"
+          >
+            <path
+              d="M1 1L3.5 4L6 1"
+              stroke="currentColor"
+              stroke-width="1"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </span>
+      </summary>
+
+      <ul class="tm-scent-options">
+        {% for sibling in product.metafields.custom.sibling_products.value %}
+          {% assign sibling_scent = sibling.metafields.custom.scent_name.value | default: sibling.title %}
+
+          {% if sibling.handle == product.handle %}
+            <li class="tm-scent-option is-current">
+              <span class="tm-scent-option-current">
+                {{ sibling_scent }}
+                <span class="tm-scent-check"></span>
+              </span>
+            </li>
+          {% else %}
+            <li class="tm-scent-option">
+              <a
+                class="tm-scent-option-link"
+                href="{{ sibling.url }}"
+              >
+                {{ sibling_scent }}
+              </a>
+            </li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    </details>
+  </div>
+
+  <script>
+    document.addEventListener('click', function(e) {
+      document.querySelectorAll('.tm-scent-dropdown').forEach(function(dropdown) {
+        if (!dropdown.contains(e.target)) {
+          dropdown.removeAttribute('open');
+        }
+      });
+    });
+  </script>
+{% endif %}
