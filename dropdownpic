@@ -1,0 +1,259 @@
+{% if product != blank and product.metafields.custom.sibling_products != blank %}
+  {% assign current_scent = product.metafields.custom.scent_name.value | default: product.title %}
+
+  <style>
+    .tm-scent-selector,
+    .tm-scent-selector *,
+    .tm-scent-selector *::before,
+    .tm-scent-selector *::after {
+      box-sizing: border-box;
+      font-family: inherit;
+    }
+
+    .tm-scent-selector {
+      width: 100%;
+      margin: 0 0 16.5px;
+      color: inherit;
+      font: inherit;
+    }
+
+    .tm-scent-heading {
+      display: block;
+      margin: 0 0 12px;
+      padding: 0;
+
+      color: inherit;
+      font-family: inherit;
+      font-size: inherit;
+      font-weight: inherit;
+      font-style: inherit;
+      line-height: inherit;
+      letter-spacing: inherit;
+      text-transform: none;
+    }
+
+    .tm-scent-heading-current {
+      font: inherit;
+      color: inherit;
+    }
+
+    .tm-scent-list {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: stretch;
+      gap: 10px;
+
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .tm-scent-item {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .tm-scent-card {
+      min-height: 48px;
+      margin: 0;
+      padding: 6px 14px 6px 8px;
+
+      border: 1px solid rgba(0, 0, 0, 0.14);
+      border-radius: 10px;
+      background: transparent;
+      color: inherit;
+      text-decoration: none;
+
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 9px;
+
+      font-family: inherit;
+      font-size: inherit;
+      font-weight: inherit;
+      font-style: inherit;
+      line-height: 1.2;
+      letter-spacing: inherit;
+      text-transform: none;
+
+      cursor: pointer;
+
+      transition:
+        border-color 0.2s ease,
+        background-color 0.2s ease;
+    }
+
+    .tm-scent-card:hover {
+      border-color: #240907;
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .tm-scent-card:focus-visible {
+      outline: 1px solid #240907;
+      outline-offset: 2px;
+    }
+
+    .tm-scent-item.is-current .tm-scent-card {
+      border: 1px solid #240907;
+      background: transparent;
+      box-shadow: none;
+      cursor: default;
+    }
+
+    .tm-scent-image-wrap {
+      width: 34px;
+      height: 34px;
+      flex: 0 0 34px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      overflow: hidden;
+      border-radius: 5px;
+      background: rgba(0, 0, 0, 0.025);
+    }
+
+    .tm-scent-image {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: center;
+    }
+
+    .tm-scent-image-placeholder {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .tm-scent-name {
+      display: block;
+      margin: 0;
+      padding: 0;
+
+      color: inherit;
+      font-family: inherit;
+      font-size: inherit;
+      font-weight: inherit;
+      font-style: inherit;
+      line-height: inherit;
+      letter-spacing: inherit;
+      text-transform: none;
+      white-space: nowrap;
+    }
+
+    @media screen and (max-width: 749px) {
+      .tm-scent-list {
+        gap: 8px;
+      }
+
+      .tm-scent-item {
+        flex: 1 1 calc(50% - 4px);
+        min-width: 0;
+      }
+
+      .tm-scent-card {
+        width: 100%;
+        min-height: 46px;
+        padding: 6px 10px 6px 7px;
+        gap: 7px;
+      }
+
+      .tm-scent-image-wrap {
+        width: 32px;
+        height: 32px;
+        flex-basis: 32px;
+      }
+
+      .tm-scent-name {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+
+    @media screen and (max-width: 420px) {
+      .tm-scent-item {
+        flex-basis: 100%;
+      }
+    }
+  </style>
+
+  <div class="tm-scent-selector">
+    <div class="tm-scent-heading">
+      Scent:
+      <span class="tm-scent-heading-current">
+        {{ current_scent }}
+      </span>
+    </div>
+
+    <ul class="tm-scent-list" role="list">
+      {% for sibling in product.metafields.custom.sibling_products.value %}
+        {% assign sibling_scent = sibling.metafields.custom.scent_name.value | default: sibling.title %}
+
+        {% if sibling.handle == product.handle %}
+          <li class="tm-scent-item is-current">
+            <span
+              class="tm-scent-card"
+              aria-current="true"
+              aria-label="{{ sibling_scent }} selected"
+            >
+              <span class="tm-scent-image-wrap">
+                {% if sibling.featured_image != blank %}
+                  {{
+                    sibling.featured_image
+                    | image_url: width: 100
+                    | image_tag:
+                      class: 'tm-scent-image',
+                      loading: 'lazy',
+                      alt: sibling_scent
+                  }}
+                {% else %}
+                  <span class="tm-scent-image-placeholder"></span>
+                {% endif %}
+              </span>
+
+              <span class="tm-scent-name">
+                {{ sibling_scent }}
+              </span>
+            </span>
+          </li>
+        {% else %}
+          <li class="tm-scent-item">
+            <a
+              class="tm-scent-card"
+              href="{{ sibling.url }}"
+              aria-label="Select {{ sibling_scent }}"
+            >
+              <span class="tm-scent-image-wrap">
+                {% if sibling.featured_image != blank %}
+                  {{
+                    sibling.featured_image
+                    | image_url: width: 100
+                    | image_tag:
+                      class: 'tm-scent-image',
+                      loading: 'lazy',
+                      alt: sibling_scent
+                  }}
+                {% else %}
+                  <span class="tm-scent-image-placeholder"></span>
+                {% endif %}
+              </span>
+
+              <span class="tm-scent-name">
+                {{ sibling_scent }}
+              </span>
+            </a>
+          </li>
+        {% endif %}
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
